@@ -1,45 +1,52 @@
-import csv
-import os
-
-USER_FILE = "data/users_account.csv"
-
-
-def init_file():
-    os.makedirs("data", exist_ok=True)
-
-    if not os.path.exists(USER_FILE):
-        with open(USER_FILE, "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["user_id", "username", "email", "password"])
+from backend.database import SessionLocal
+from backend.models import User
 
 
 def register_user(username, email, password):
-    init_file()
 
-    with open(USER_FILE, "r") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if row["username"] == username:
-                return {"status": "error", "message": "Username already exists"}
+    db = SessionLocal()
 
-    with open(USER_FILE, "r") as f:
-        reader = list(csv.DictReader(f))
-        user_id = str(len(reader) + 1)
+    existing_user = db.query(User).filter(
+        User.username == username
+    ).first()
 
-    with open(USER_FILE, "a", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([user_id, username, email, password])
+    if existing_user:
+        return {
+            "status": "error",
+            "message": "Username already exists"
+        }
 
-    return {"status": "success", "message": "Registered successfully"}
+    new_user = User(
+        username=username,
+        email=email,
+        password=password
+    )
+
+    db.add(new_user)
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": "Registered successfully"
+    }
 
 
 def login_user(username, password):
-    init_file()
 
-    with open(USER_FILE, "r") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if row["username"] == username and row["password"] == password:
-                return {"status": "success", "user": row}
+    db = SessionLocal()
 
-    return {"status": "error", "message": "Invalid login"}
+    user = db.query(User).filter(
+        User.username == username,
+        User.password == password
+    ).first()
+
+    if user:
+        return {
+            "status": "success",
+            "message": "Login successful"
+        }
+
+    return {
+        "status": "error",
+        "message": "Invalid login"
+    }
