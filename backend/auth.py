@@ -11,6 +11,8 @@ def register_user(username, email, password):
     ).first()
 
     if existing_user:
+        db.close()
+
         return {
             "status": "error",
             "message": "Username already exists"
@@ -24,6 +26,8 @@ def register_user(username, email, password):
 
     db.add(new_user)
     db.commit()
+
+    db.close()
 
     return {
         "status": "success",
@@ -40,10 +44,16 @@ def login_user(username, password):
         User.password == password
     ).first()
 
+    db.close()
+
     if user:
         return {
             "status": "success",
-            "message": "Login successful"
+            "message": "Login successful",
+            "user": {
+                "username": user.username,
+                "email": user.email
+            }
         }
 
     return {

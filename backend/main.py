@@ -1,44 +1,21 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from backend.auth import register_user, login_user
-from backend.database import engine
-from backend.database import Base
-
-import backend.models
-
+from fastapi import FastAPI, Depends
+from backend.database import engine, Base, get_db
+from backend import models   
+from backend.schemas import UserRegister, UserLogin
+from backend.services.auth_service import register_user, login_user
 
 app = FastAPI()
 
-
-# CREATE DATABASE TABLES
-Base.metadata.create_all(bind=engine)
-
-
-class User(BaseModel):
-    username: str
-    email: str = ""
-    password: str
-
-
-@app.get("/")
-def home():
-    return {"message": "API Working"}
+@app.on_event("startup")
+def startup():
+    Base.metadata.create_all(bind=engine)
 
 
 @app.post("/register")
-def register(user: User):
-
-    return register_user(
-        user.username,
-        user.email,
-        user.password
-    )
+def register(user: UserRegister):
+    return register_user(db, user.username, user.email, user.password)
 
 
 @app.post("/login")
-def login(user: User):
-
-    return login_user(
-        user.username,
-        user.password
-    )
+def login(user: UserLogin):
+    return login_user(db, user.username, user.password)
