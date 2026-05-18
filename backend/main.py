@@ -1,11 +1,16 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
+ HEAD
+
+
+ 5278374 (revised)
 from backend.database import engine, Base, get_db
-from backend import models   
+from backend import models
 from backend.schemas import UserRegister, UserLogin
 from backend.services.auth_services import register_user, login_user
 
 app = FastAPI()
+
 
 @app.on_event("startup")
 def startup():
