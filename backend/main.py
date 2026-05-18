@@ -1,9 +1,6 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
- HEAD
-
-
- 5278374 (revised)
+(revised)
 from backend.database import engine, Base, get_db
 from backend import models
 from backend.schemas import UserRegister, UserLogin
