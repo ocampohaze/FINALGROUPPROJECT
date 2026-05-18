@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-(revised)
 from backend.database import engine, Base, get_db
 from backend import models
 from backend.schemas import UserRegister, UserLogin
